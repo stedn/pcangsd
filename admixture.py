@@ -18,8 +18,8 @@ def logLike_admixInner(likeMatrix, X, S, N, L):
 	m, n = likeMatrix.shape
 	m /= 3
 	temp = np.empty(3) # Container for each genotype
-	for ind in xrange(S, min(S+N, m)):
-		for s in xrange(n):
+	for ind in range(S, min(S+N, m)):
+		for s in range(n):
 			temp[0] = likeMatrix[3*ind, s]*(1 - X[ind, s])*(1 - X[ind, s])
 			temp[1] = likeMatrix[3*ind+1, s]*2*X[ind, s]*(1 - X[ind, s])
 			temp[2] = likeMatrix[3*ind+2, s]*X[ind, s]*X[ind, s]
@@ -44,8 +44,8 @@ def logLike_admix(likeMatrix, X, chunks, chunk_N):
 @jit("void(f8[:, :], f8[:, :], f8[:, :])", nopython=True, nogil=True, cache=True)
 def updateF(F, A, FB):
 	n, K = F.shape
-	for s in xrange(n):
-		for k in xrange(K):
+	for s in range(n):
+		for k in range(K):
 			F[s, k] *= A[s, k]/FB[s, k]
 			F[s, k] = max(F[s, k], 1e-4)
 			F[s, k] = min(F[s, k], 1-(1e-4))
@@ -53,8 +53,8 @@ def updateF(F, A, FB):
 @jit("void(f8[:, :], f8[:, :], f8[:, :], f8)", nopython=True, nogil=True, cache=True)
 def updateQ(Q, A, QB, alpha):
 	m, K = Q.shape
-	for i in xrange(m):
-		for k in xrange(K):
+	for i in range(m):
+		for k in range(K):
 			Q[i, k] *= A[i, k]/(QB[i, k] + alpha)
 			Q[i, k] = max(Q[i, k], 1e-4)
 			Q[i, k] = min(Q[i, k], 1-(1e-4))
@@ -77,14 +77,14 @@ def admixNMF(X, K, likeMatrix, alpha=0, iter=100, tole=5e-5, seed=0, batch=5, th
 
 	# Multithreading
 	chunk_N = int(np.ceil(float(m)/threads))
-	chunks = [i * chunk_N for i in xrange(threads)]
+	chunks = [i * chunk_N for i in range(threads)]
 
 	# Batch preparation
 	batch_N = int(np.ceil(float(n)/batch))
 	bIndex = np.arange(0, n, batch_N)
 
 	# ASG-MU
-	for iteration in xrange(1, iter + 1):
+	for iteration in range(1, iter + 1):
 		perm = np.random.permutation(batch)
 
 		for b in bIndex[perm]:
@@ -97,7 +97,7 @@ def admixNMF(X, K, likeMatrix, alpha=0, iter=100, tole=5e-5, seed=0, batch=5, th
 			# Update F
 			A = np.dot(Xbatch.T, Q)
 			B = np.dot(Q.T, Q)
-			for inner in xrange(pF): # Acceleration updates
+			for inner in range(pF): # Acceleration updates
 				F_prev = np.copy(F[b:bEnd])
 				updateF(F[b:bEnd], A, np.dot(F[b:bEnd], B))
 				
@@ -110,7 +110,7 @@ def admixNMF(X, K, likeMatrix, alpha=0, iter=100, tole=5e-5, seed=0, batch=5, th
 			# Update Q
 			A = np.dot(Xbatch, F[b:bEnd])
 			B = np.dot(F[b:bEnd].T, F[b:bEnd])
-			for inner in xrange(pQ): # Acceleration updates
+			for inner in range(pQ): # Acceleration updates
 				Q_prev = np.copy(Q)
 				updateQ(Q, A, np.dot(Q, B), alpha)
 				Q /= np.sum(Q, axis=1, keepdims=True)
@@ -123,10 +123,10 @@ def admixNMF(X, K, likeMatrix, alpha=0, iter=100, tole=5e-5, seed=0, batch=5, th
 
 		# Measure difference
 		diff = rmse2d_multi(Q, prevQ, chunks, chunk_N)
-		print "ASG-MU (" + str(iteration) + "). Q-RMSD=" + str(diff)
+		print("ASG-MU (" + str(iteration) + "). Q-RMSD=" + str(diff))
 		
 		if diff < tole:
-			print "ASG-MU has converged. Running full iterations."
+			print("ASG-MU has converged. Running full iterations.")
 			break
 		prevQ = np.copy(Q)
 
@@ -135,11 +135,11 @@ def admixNMF(X, K, likeMatrix, alpha=0, iter=100, tole=5e-5, seed=0, batch=5, th
 	# Full iterations
 	pF = 2*(1 + (m*n + m*K)/(n*K + n))
 	pQ = 2*(1 + (m*n + n*K)/(m*K + m))
-	for full_iter in xrange(1, 11):
+	for full_iter in range(1, 11):
 		# Update F
 		A = np.dot(X.T, Q)
 		B = np.dot(Q.T, Q)
-		for inner in xrange(pF): # Acceleration updates
+		for inner in range(pF): # Acceleration updates
 			F_prev = np.copy(F)
 			updateF(F, A, np.dot(F, B))
 			
@@ -152,7 +152,7 @@ def admixNMF(X, K, likeMatrix, alpha=0, iter=100, tole=5e-5, seed=0, batch=5, th
 		# Update Q
 		A = np.dot(X, F)
 		B = np.dot(F.T, F)
-		for inner in xrange(pQ): # Acceleration updates
+		for inner in range(pQ): # Acceleration updates
 			Q_prev = np.copy(Q)
 			updateQ(Q, A, np.dot(Q, B), alpha*batch)
 			Q /= np.sum(Q, axis=1, keepdims=True)
@@ -165,10 +165,10 @@ def admixNMF(X, K, likeMatrix, alpha=0, iter=100, tole=5e-5, seed=0, batch=5, th
 
 		# Measure difference
 		diff = rmse2d_multi(Q, prevQ, chunks, chunk_N)
-		print "Full-MU (" + str(full_iter + iteration) + "). Q-RMSD=" + str(diff)
+		print("Full-MU (" + str(full_iter + iteration) + "). Q-RMSD=" + str(diff))
 		
 		if diff < 1e-5:
-			print "Admixture estimation has converged."
+			print("Admixture estimation has converged.")
 			break
 		prevQ = np.copy(Q)
 	
@@ -181,8 +181,8 @@ def admixNMF(X, K, likeMatrix, alpha=0, iter=100, tole=5e-5, seed=0, batch=5, th
 	# Frobenius and log-like
 	Xhat = np.dot(Q, F.T)
 	Obj = frobenius2d_multi(X, Xhat, chunks, chunk_N)
-	print "Frobenius error: " + str(Obj)
+	print("Frobenius error: " + str(Obj))
 
 	logLike = logLike_admix(likeMatrix, Xhat, chunks, chunk_N) # Log-likelihood (ngsAdmix model)
-	print "Log-likelihood: " + str(logLike)
+	print("Log-likelihood: " + str(logLike))
 	return Q, F

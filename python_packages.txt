@@ -2,4 +2,4 @@ numpy
 scipy
 pandas
 numba
-pysnptools
+-e git://github.com/p-himik/PySnpTools.git@2005b565edb5312f5122456601be6023c17124f1#egg=pysnptools

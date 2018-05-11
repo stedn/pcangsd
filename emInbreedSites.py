@@ -24,20 +24,20 @@ def innerEM(likeMatrix, indf, F):
 	expG = np.zeros(n) # Container for posterior probability of heterozygosity
 	expH = np.zeros(n) # Container for expected heterozygosity
 
-	for ind in xrange(m):
+	for ind in range(m):
 		# Estimate posterior probabilities
-		for s in xrange(n):
+		for s in range(n):
 			probMatrix[0, s] = likeMatrix[3*ind, s]*((1 - indf[ind, s])*(1 - indf[ind, s]) + (1 - indf[ind, s])*indf[ind, s]*F[s])
 			probMatrix[1, s] = likeMatrix[3*ind + 1, s]*2*indf[ind, s]*(1 - indf[ind, s])*(1 - F[s])
 			probMatrix[2, s] = likeMatrix[3*ind + 2, s]*(indf[ind, s]*indf[ind, s] + (1 - indf[ind, s])*indf[ind, s]*F[s])
 			expH[s] += 2*indf[ind, s]*(1 - indf[ind, s]) # Expected number of heterozygotes
 
-			for g in xrange(3):
+			for g in range(3):
 				probMatrix[g, s] = max(0.0001, probMatrix[g, s])
 		probMatrix /= np.sum(probMatrix, axis=0)
 		expG += probMatrix[1, :] # Sum the posterior of each individual
 
-	for s in xrange(n):
+	for s in range(n):
 		F[s] = 1 - (expG[s]/expH[s])
 
 # Loglikelihood estimates
@@ -48,14 +48,14 @@ def loglike(likeMatrix, indf, F, logAlt, logNull):
 	likeAlt = np.zeros((3, n))
 	likeNull = np.zeros((3, n))
 
-	for ind in xrange(m):
-		for s in xrange(n):
+	for ind in range(m):
+		for s in range(n):
 			# Alternative model
 			likeAlt[0, s] = likeMatrix[3*ind, s]*((1 - indf[ind, s])*(1 - indf[ind, s]) + (1 - indf[ind, s])*indf[ind, s]*F[s])
 			likeAlt[1, s] = likeMatrix[3*ind + 1, s]*(2*indf[ind, s]*(1 - indf[ind, s])*(1 - F[s]))
 			likeAlt[2, s] = likeMatrix[3*ind + 2, s]*(indf[ind, s]*indf[ind, s] + (1 - indf[ind, s])*indf[ind, s]*F[s])
 
-			for g in xrange(3):
+			for g in range(3):
 				likeAlt[g, s] = max(0.0001, likeAlt[g, s])
 			logAlt[s] += np.log(np.sum(likeAlt[:, s]))
 
@@ -73,14 +73,14 @@ def inbreedSitesEM(likeMatrix, indf, EM=200, EM_tole=1e-4):
 	F_prev = np.copy(F)
 
 	# EM algorithm
-	for iteration in xrange(1, EM + 1):
+	for iteration in range(1, EM + 1):
 		innerEM(likeMatrix, indf, F) # Update F
 
 		# Break EM update if converged
 		updateDiff = rmse1d(F, F_prev)
-		print "Inbreeding coefficients estimated (" +str(iteration) + "). RMSD=" + str(updateDiff)
+		print("Inbreeding coefficients estimated (" +str(iteration) + "). RMSD=" + str(updateDiff))
 		if updateDiff < EM_tole:
-			print "EM (Inbreeding - sites) converged at iteration: " + str(iteration)
+			print("EM (Inbreeding - sites) converged at iteration: " + str(iteration))
 			break
 
 		F_prev = np.copy(F)

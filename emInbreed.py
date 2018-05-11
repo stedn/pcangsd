@@ -23,7 +23,7 @@ def inbreedEM(likeMatrix, f, model=1, EM=200, EM_tole=1e-4):
 	F_prev = np.copy(F)
 
 	if model == 1: # Maximum likelihood estimator
-		for iteration in xrange(1, EM+1): # EM iterations
+		for iteration in range(1, EM+1): # EM iterations
 			if f.ndim == 1:
 				# Estimated genotype frequencies given IBD state (Z)
 				fMatrix_z0 = np.vstack(((1-f)**2, 2*f*(1-f), f**2))
@@ -31,7 +31,7 @@ def inbreedEM(likeMatrix, f, model=1, EM=200, EM_tole=1e-4):
 
 			wLike = np.empty((2,n), dtype=np.float32) # Weighted likelihood by prior
 
-			for ind in xrange(m):
+			for ind in range(m):
 				if f.ndim == 2:
 					# Estimated genotype frequencies given IBD state (Z)
 					fMatrix_z0 = np.vstack(((1-f[ind])**2, 2*f[ind]*(1-f[ind]), f[ind]**2))
@@ -46,9 +46,9 @@ def inbreedEM(likeMatrix, f, model=1, EM=200, EM_tole=1e-4):
 
 			# Break EM update if converged
 			diff = rmse1d(F, F_prev)
-			print "Inbreeding coefficients computed (" +str(iteration) + "). RMSD=" + str(diff)
+			print("Inbreeding coefficients computed (" +str(iteration) + "). RMSD=" + str(diff))
 			if diff < EM_tole:
-				print "EM (Inbreeding) converged at iteration: " + str(iteration)
+				print("EM (Inbreeding) converged at iteration: " + str(iteration))
 				break
 
 			if iteration == 1:
@@ -56,7 +56,7 @@ def inbreedEM(likeMatrix, f, model=1, EM=200, EM_tole=1e-4):
 			else:
 				# Second convergence criterion
 				if abs(diff - oldDiff) <= 1e-5:
-					print "Estimation of inbreeding coefficients. RMSD between iterations: " + str(abs(diff - oldDiff))
+					print("Estimation of inbreeding coefficients. RMSD between iterations: " + str(abs(diff - oldDiff)))
 					break
 				else:
 					oldDiff = diff
@@ -64,12 +64,12 @@ def inbreedEM(likeMatrix, f, model=1, EM=200, EM_tole=1e-4):
 			F_prev = np.copy(F)
 
 	elif model == 2: # Secondary model - Simple estimator (Vieira-model)
-		for iteration in xrange(1, EM+1): # EM iterations
+		for iteration in range(1, EM+1): # EM iterations
 			if f.ndim == 1:
 				# Expected number of heterozygotes
 				expH = np.sum(2*f*(1-f))
 
-			for ind in xrange(m):
+			for ind in range(m):
 				if f.ndim == 1:
 					# Estimated genotype frequencies given F
 					fMatrix = np.vstack(((1-f)**2 + (1-f)*f*F[ind], 2*(1-f)*f*(1-F[ind]), f**2 + (1-f)*f*F[ind]))
@@ -89,9 +89,9 @@ def inbreedEM(likeMatrix, f, model=1, EM=200, EM_tole=1e-4):
 
 			# Break EM update if converged
 			diff = rmse1d(F, F_prev)
-			print "Inbreeding coefficients computed (" +str(iteration) + "). RMSD=" + str(diff)
+			print("Inbreeding coefficients computed (" +str(iteration) + "). RMSD=" + str(diff))
 			if diff < EM_tole:
-				print "EM (Inbreeding) converged at iteration: " + str(iteration)
+				print("EM (Inbreeding) converged at iteration: " + str(iteration))
 				break
 
 			if iteration == 1:
@@ -99,7 +99,7 @@ def inbreedEM(likeMatrix, f, model=1, EM=200, EM_tole=1e-4):
 			else:
 				# Second convergence criterion
 				if abs(diff - oldDiff) <= 1e-5:
-					print "Estimation of inbreeding coefficients. RMSD between iterations: " + str(abs(diff - oldDiff))
+					print("Estimation of inbreeding coefficients. RMSD between iterations: " + str(abs(diff - oldDiff)))
 					break
 				else:
 					oldDiff = diff

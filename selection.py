@@ -17,8 +17,8 @@ import threading
 @jit("void(f4[:, :], f8[:], i8, i8, f8[:, :])", nopython=True, nogil=True, cache=True)
 def normalizeGeno(expG, f, S, N, X):
 	m, n = expG.shape
-	for ind in xrange(S, min(S+N, m)):
-		for s in xrange(n):
+	for ind in range(S, min(S+N, m)):
+		for s in range(n):
 			X[ind, s] = (expG[ind, s] - 2*f[s])/np.sqrt(2*f[s]*(1 - f[s]))
 
 # Selection scan
@@ -31,7 +31,7 @@ def selectionScan(expG, f, C, nEV, model=1, threads=1):
 	V = eigVecs[:, sort[:nEV]] # Sorted eigenvectors
 
 	chunk_N = int(np.ceil(float(m)/threads))
-	chunks = [i * chunk_N for i in xrange(threads)]
+	chunks = [i * chunk_N for i in range(threads)]
 
 	if model==1: # FastPCA
 		X = np.zeros((m, n))
@@ -47,7 +47,7 @@ def selectionScan(expG, f, C, nEV, model=1, threads=1):
 		test = np.zeros((nEV, n))
 
 		# Compute p-values for each PC in each site
-		for eigVec in xrange(nEV):
+		for eigVec in range(nEV):
 			# Weighted SNPs are chi-square distributed with df = 1
 			test[eigVec] = (1.0/l[eigVec])*(np.dot(X.T, V[:, eigVec])**2)
 
@@ -68,7 +68,7 @@ def selectionScan(expG, f, C, nEV, model=1, threads=1):
 		Zinvcov = np.linalg.inv(np.cov(Z)) # Inverse covariance matrix of Z-scores
 
 		# Calculate Mahalanobis distances
-		for s in xrange(n):
+		for s in range(n):
 			test[s] = np.sqrt(np.dot(np.dot((Z[:, s] - Zmeans), Zinvcov), (Z[:, s] - Zmeans)))
 
 	return test

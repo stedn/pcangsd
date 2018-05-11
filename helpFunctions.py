@@ -15,7 +15,7 @@ import threading
 @jit("f8(f8[:], f8[:])", nopython=True, nogil=True, cache=True)
 def rmse1d(A, B):
 	sumA = 0.0
-	for i in xrange(A.shape[0]):
+	for i in range(A.shape[0]):
 		sumA += (A[i] - B[i])*(A[i] - B[i])
 	sumA /= (A.shape[0])
 	return sqrt(sumA)
@@ -24,8 +24,8 @@ def rmse1d(A, B):
 @jit("void(f4[:, :], f4[:, :], i8, i8, f8[:])", nopython=True, nogil=True, cache=True)
 def rmse2d_inner_float32(A, B, S, N, V):
 	m, n = A.shape
-	for i in xrange(S, min(S+N, m)):
-		for j in xrange(n):
+	for i in range(S, min(S+N, m)):
+		for j in range(n):
 			V[i] += (A[i, j] - B[i, j])*(A[i, j] - B[i, j])
 
 def rmse2d_multi_float32(A, B, chunks, chunk_N):
@@ -44,8 +44,8 @@ def rmse2d_multi_float32(A, B, chunks, chunk_N):
 @jit("void(f8[:, :], f8[:, :], i8, i8, f8[:])", nopython=True, nogil=True, cache=True)
 def rmse2d_inner(A, B, S, N, V):
 	m, n = A.shape
-	for i in xrange(S, min(S+N, m)):
-		for j in xrange(n):
+	for i in range(S, min(S+N, m)):
+		for j in range(n):
 			V[i] += (A[i, j] - B[i, j])*(A[i, j] - B[i, j])
 
 def rmse2d_multi(A, B, chunks, chunk_N):
@@ -65,8 +65,8 @@ def rmse2d_multi(A, B, chunks, chunk_N):
 @jit("f8(f8[:, :], f8[:, :])", nopython=True, nogil=True, cache=True)
 def rmse2d(A, B):
 	sumA = 0.0
-	for i in xrange(A.shape[0]):
-		for j in xrange(A.shape[1]):
+	for i in range(A.shape[0]):
+		for j in range(A.shape[1]):
 			sumA += (A[i, j] - B[i, j])*(A[i, j] - B[i, j])
 	sumA /= (A.shape[0]*A.shape[1])
 	return sqrt(sumA)
@@ -75,8 +75,8 @@ def rmse2d(A, B):
 @jit("void(f4[:, :], f8[:, :], i8, i8, f8[:])", nopython=True, nogil=True, cache=True)
 def frobenius2d_inner(A, B, S, N, V):
 	m, n = A.shape
-	for i in xrange(S, min(S+N, m)):
-		for j in xrange(n):
+	for i in range(S, min(S+N, m)):
+		for j in range(n):
 			V[i] += (A[i, j] - B[i, j])*(A[i, j] - B[i, j])
 
 def frobenius2d_multi(A, B, chunks, chunk_N):
@@ -96,8 +96,8 @@ def frobenius2d_multi(A, B, chunks, chunk_N):
 @jit("f8(f8[:, :], f8[:, :])", nopython=True, nogil=True, cache=True)
 def frobenius(A, B):
 	sumA = 0.0
-	for i in xrange(A.shape[0]):
-		for j in xrange(A.shape[1]):
+	for i in range(A.shape[0]):
+		for j in range(A.shape[1]):
 			sumA += (A[i, j] - B[i, j])*(A[i, j] - B[i, j])
 	return sqrt(sumA)
 
@@ -105,8 +105,8 @@ def frobenius(A, B):
 @jit("f8(f8[:, :])", nopython=True, nogil=True, cache=True)
 def frobeniusSingle(A):
 	sumA = 0.0
-	for i in xrange(A.shape[0]):
-		for j in xrange(A.shape[1]):
+	for i in range(A.shape[0]):
+		for j in range(A.shape[1]):
 			sumA += A[i, j]*A[i, j]
 	return sqrt(sumA)
 
@@ -114,14 +114,14 @@ def frobeniusSingle(A):
 @jit("void(f4[:, :], f4[:, :], i8, i8, f8)", nopython=True, nogil=True, cache=True)
 def convertPlink(likeMatrix, G, S, N, epsilon):
 	m, n = G.shape # Dimension of genotype matrix
-	for ind in xrange(S, min(S+N, m)):
-		for s in xrange(n):
+	for ind in range(S, min(S+N, m)):
+		for s in range(n):
 			if np.isnan(G[ind, s]):
 				likeMatrix[3*ind, s] = 0.333333
 				likeMatrix[3*ind + 1, s] = 0.333333
 				likeMatrix[3*ind + 2, s] = 0.333333
 			else:
-				for g in xrange(3):
+				for g in range(3):
 					if int(G[ind, s]) == g:
 						likeMatrix[3*ind + g, s] = 1.0 - epsilon
 					else:

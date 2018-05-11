@@ -33,8 +33,8 @@ def innerEM(likeMatrix, f, S, N, newF):
 	m, n = likeMatrix.shape # Dimension of likelihood matrix
 	m /= 3 # Number of individuals
 
-	for s in xrange(S, min(S+N, n)):
-		for ind in xrange(m):
+	for s in range(S, min(S+N, n)):
+		for ind in range(m):
 			p0 = likeMatrix[3*ind, s]*(1 - f[s])*(1 - f[s])
 			p1 = likeMatrix[3*ind + 1, s]*2*f[s]*(1 - f[s])
 			p2 = likeMatrix[3*ind + 2, s]*f[s]*f[s]
@@ -49,16 +49,16 @@ def alleleEM(likeMatrix, EM=200, EM_tole=5e-5, threads=1):
 
 	# Prepare for multithreading
 	chunk_N = int(np.ceil(float(n)/threads))
-	chunks = [i * chunk_N for i in xrange(threads)]
+	chunks = [i * chunk_N for i in range(threads)]
 
-	for iteration in xrange(1, EM + 1): # EM iterations
+	for iteration in range(1, EM + 1): # EM iterations
 		f = updateF(likeMatrix, f, chunks, chunk_N) # Updated allele frequencies
 
 		# Break EM update if converged
 		if iteration > 1:
 			diff = rmse1d(f, f_prev)
 			if diff < EM_tole:
-				print "EM (MAF) converged at iteration: " + str(iteration)
+				print("EM (MAF) converged at iteration: " + str(iteration))
 				break
 		f_prev = np.copy(f)
 	return f

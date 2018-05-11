@@ -22,18 +22,18 @@ def updateFumagalli(likeMatrix, f, S, N, expG):
 	probMatrix = np.zeros((3, n), dtype=np.float32)
 	
 	# Loop over individuals
-	for ind in xrange(S, min(S+N, m)):
+	for ind in range(S, min(S+N, m)):
 		# Estimate posterior probabilities
-		for s in xrange(n):
+		for s in range(n):
 			probMatrix[0, s] = likeMatrix[3*ind, s]*(1 - f[s])*(1 - f[s])
 			probMatrix[1, s] = likeMatrix[3*ind+1, s]*2*f[s]*(1 - f[s])
 			probMatrix[2, s] = likeMatrix[3*ind+2, s]*f[s]*f[s]
 		probMatrix /= np.sum(probMatrix, axis=0)
 
 		# Estimate genotype dosages
-		for s in xrange(n):
+		for s in range(n):
 			expG[ind, s] = 0.0
-			for g in xrange(3):
+			for g in range(3):
 				expG[ind, s] += probMatrix[g, s]*g
 
 # Estimate posterior expecations of the genotypes and covariance matrix diagonal (Fumagalli method)
@@ -44,9 +44,9 @@ def covFumagalli(likeMatrix, f, S, N, expG, diagC):
 	probMatrix = np.zeros((3, n), dtype=np.float32)
 	
 	# Loop over individuals
-	for ind in xrange(S, min(S+N, m)):
+	for ind in range(S, min(S+N, m)):
 		# Estimate posterior probabilities
-		for s in xrange(n):
+		for s in range(n):
 			probMatrix[0, s] = likeMatrix[3*ind, s]*(1 - f[s])*(1 - f[s])
 			probMatrix[1, s] = likeMatrix[3*ind+1, s]*2*f[s]*(1 - f[s])
 			probMatrix[2, s] = likeMatrix[3*ind+2, s]*f[s]*f[s]
@@ -54,10 +54,10 @@ def covFumagalli(likeMatrix, f, S, N, expG, diagC):
 
 		# Estimate genotype dosages and diagonal of GRM
 		diagC[ind] = 0.0
-		for s in xrange(n):
+		for s in range(n):
 			expG[ind, s] = 0.0
 			temp = 0.0
-			for g in xrange(3):
+			for g in range(3):
 				expG[ind, s] += probMatrix[g, s]*g
 				temp += (g - 2*f[s])*(g - 2*f[s])*probMatrix[g, s]
 			diagC[ind] += temp/(2*f[s]*(1 - f[s]))
@@ -71,18 +71,18 @@ def updatePCAngsd(likeMatrix, indF, S, N, expG):
 	probMatrix = np.zeros((3, n), dtype=np.float32)
 
 	# Loop over individuals
-	for ind in xrange(S, min(S+N, m)):
+	for ind in range(S, min(S+N, m)):
 		# Estimate posterior probabilities
-		for s in xrange(n):
+		for s in range(n):
 			probMatrix[0, s] = likeMatrix[3*ind, s]*(1 - indF[ind, s])*(1 - indF[ind, s])
 			probMatrix[1, s] = likeMatrix[3*ind+1, s]*2*indF[ind, s]*(1 - indF[ind, s])
 			probMatrix[2, s] = likeMatrix[3*ind+2, s]*indF[ind, s]*indF[ind, s]
 		probMatrix /= np.sum(probMatrix, axis=0)
 
 		# Estimate genotype dosages
-		for s in xrange(n):
+		for s in range(n):
 			expG[ind, s] = 0.0
-			for g in xrange(3):
+			for g in range(3):
 				expG[ind, s] += probMatrix[g, s]*g
 
 # Estimate posterior expecations of the genotypes and covariance matrix diagonal (PCAngsd)
@@ -92,9 +92,9 @@ def covPCAngsd(likeMatrix, indF, f, S, N, expG, diagC):
 	m /= 3 # Number of individuals
 	probMatrix = np.zeros((3, n), dtype=np.float32)
 
-	for ind in xrange(S, min(S+N, m)):
+	for ind in range(S, min(S+N, m)):
 		# Estimate posterior probabilities
-		for s in xrange(n):
+		for s in range(n):
 			probMatrix[0, s] = likeMatrix[3*ind, s]*(1 - indF[ind, s])*(1 - indF[ind, s])
 			probMatrix[1, s] = likeMatrix[3*ind+1, s]*2*indF[ind, s]*(1 - indF[ind, s])
 			probMatrix[2, s] = likeMatrix[3*ind+2, s]*indF[ind, s]*indF[ind, s]
@@ -102,10 +102,10 @@ def covPCAngsd(likeMatrix, indF, f, S, N, expG, diagC):
 
 		# Estimate genotype dosages and diagonal of GRM
 		diagC[ind] = 0.0
-		for s in xrange(n):
+		for s in range(n):
 			expG[ind, s] = 0.0
 			temp = 0.0
-			for g in xrange(3):
+			for g in range(3):
 				expG[ind, s] += probMatrix[g, s]*g
 				temp += (g - 2*f[s])*(g - 2*f[s])*probMatrix[g, s]
 			diagC[ind] += temp/(2*f[s]*(1 - f[s]))
@@ -115,8 +115,8 @@ def covPCAngsd(likeMatrix, indF, f, S, N, expG, diagC):
 @jit("void(f4[:, :], f8[:], i8, i8, f8[:, :])", nopython=True, nogil=True, cache=True)
 def normalizeGeno(expG, f, S, N, X):
 	m, n = expG.shape
-	for ind in xrange(S, min(S+N, m)):
-		for s in xrange(n):
+	for ind in range(S, min(S+N, m)):
+		for s in range(n):
 			X[ind, s] = (expG[ind, s] - 2*f[s])/sqrt(2*f[s]*(1 - f[s]))
 
 # Estimate covariance matrix
@@ -139,16 +139,16 @@ def estimateCov(expG, diagC, f, chunks, chunk_N):
 @jit("void(f4[:, :], f8[:], i8, i8)", nopython=True, nogil=True, cache=True)
 def expGcenter(expG, f, S, N):
 	m, n = expG.shape
-	for ind in xrange(S, min(S+N, m)):
-		for s in xrange(n):
+	for ind in range(S, min(S+N, m)):
+		for s in range(n):
 			expG[ind, s] = expG[ind, s] - 2*f[s]
 
 # Add intercept to reconstructed allele frequencies
 @jit("void(f4[:, :], f8[:], i8, i8)", nopython=True, nogil=True, cache=True)
 def addIntercept(indF, f, S, N):
 	m, n = indF.shape
-	for ind in xrange(S, min(S+N, m)):
-		for s in xrange(n):
+	for ind in range(S, min(S+N, m)):
+		for s in range(n):
 			indF[ind, s] += 2*f[s]
 			indF[ind, s] /= 2
 			indF[ind, s] = max(indF[ind, s], 1e-4)
@@ -185,7 +185,7 @@ def PCAngsd(likeMatrix, EVs, M, f, M_tole=5e-5, threads=1):
 	m /= 3 # Number of individuals
 	e = EVs
 	chunk_N = int(np.ceil(float(m)/threads))
-	chunks = [i * chunk_N for i in xrange(threads)]
+	chunks = [i * chunk_N for i in range(threads)]
 
 	# Initiate matrices
 	expG = np.zeros((m, n), dtype=np.float32)
@@ -203,7 +203,7 @@ def PCAngsd(likeMatrix, EVs, M, f, M_tole=5e-5, threads=1):
 		# Estimate covariance matrix (Fumagalli)
 		C = estimateCov(expG, diagC, f, chunks, chunk_N)
 		if M == 0:
-			print "Returning with ngsTools covariance matrix!"
+			print("Returning with ngsTools covariance matrix!")
 			return C, None, e, expG
 
 		# Velicer's Minimum Average Partial (MAP) Test 
@@ -216,7 +216,7 @@ def PCAngsd(likeMatrix, EVs, M, f, M_tole=5e-5, threads=1):
 		mapTest = np.zeros(eigVals.shape[0])
 
 		# Loop over m-1 eigenvalues for MAP test
-		for eig in xrange(eigVals.shape[0]):
+		for eig in range(eigVals.shape[0]):
 			partcov = C - (np.dot(loadings[:, 0:(eig + 1)], loadings[:, 0:(eig + 1)].T))
 			d = np.diag(partcov)
 
@@ -228,13 +228,13 @@ def PCAngsd(likeMatrix, EVs, M, f, M_tole=5e-5, threads=1):
 				mapTest[eig] = (np.sum(pr**2) - m)/(m*(m - 1))
 
 		e = max([1, np.argmin(mapTest) + 1]) # Number of principal components retained
-		print "Using " + str(e) + " principal components (MAP test)"
+		print("Using " + str(e) + " principal components (MAP test)")
 		
 		# Release memory
 		del eigVals, eigVecs, loadings, partcov, mapTest
 	
 	else:
-		print "Using " + str(e) + " principal components (manually selected)"
+		print("Using " + str(e) + " principal components (manually selected)")
 		
 		# Multithreading
 		threads = [threading.Thread(target=updateFumagalli, args=(likeMatrix, f, chunk, chunk_N, expG)) for chunk in chunks]
@@ -246,10 +246,10 @@ def PCAngsd(likeMatrix, EVs, M, f, M_tole=5e-5, threads=1):
 	# Estimate individual allele frequencies
 	predF = estimateF(expG, f, e, chunks, chunk_N)
 	prevF = np.copy(predF)
-	print "Individual allele frequencies estimated (1)"
+	print("Individual allele frequencies estimated (1)")
 	
 	# Iterative covariance estimation
-	for iteration in xrange(2, M+2):
+	for iteration in range(2, M+2):
 		# Multithreading
 		threads = [threading.Thread(target=updatePCAngsd, args=(likeMatrix, predF, chunk, chunk_N, expG)) for chunk in chunks]
 		for thread in threads:
@@ -262,16 +262,16 @@ def PCAngsd(likeMatrix, EVs, M, f, M_tole=5e-5, threads=1):
 
 		# Break iterative update if converged
 		diff = rmse2d_multi_float32(predF, prevF, chunks, chunk_N)
-		print "Individual allele frequencies estimated (" + str(iteration) + "). RMSD=" + str(diff)
+		print("Individual allele frequencies estimated (" + str(iteration) + "). RMSD=" + str(diff))
 		if diff < M_tole:
-			print "Estimation of individual allele frequencies has converged."
+			print("Estimation of individual allele frequencies has converged.")
 			break
 		# Second convergence criterion
 		if iteration == 2:
 			oldDiff = diff
 		else:
 			if abs(diff - oldDiff) <= 5e-6:
-				print "Estimation of individual allele frequencies has converged. Change in RMSD between iterations: " + str(abs(diff - oldDiff))
+				print("Estimation of individual allele frequencies has converged. Change in RMSD between iterations: " + str(abs(diff - oldDiff)))
 				break
 			else:
 				oldDiff = diff
